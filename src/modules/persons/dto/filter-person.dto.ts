@@ -1,32 +1,22 @@
 import {
-  IsDateString,
-  IsEmail,
-  IsEnum,
-  IsInt,
   IsOptional,
   IsString,
+  IsDateString,
+  IsBoolean,
+  IsEnum,
+  IsEmail,
   Length,
-  Max,
+  IsInt,
   Min,
-  ValidateNested,
+  Max,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { GenderType } from '../enums/gender-type.enum';
 import { ClothingSize } from '../enums/clothing-size.enum';
-import { OnlyOneOf } from 'src/common/decorators/validate-one-of-two-fields.validator';
+import { IsAfterDate } from 'src/common/decorators/is-after-date.decorator';
 import { StrictBoolean } from 'src/common/decorators/strict-boolean.decorator';
 
-@OnlyOneOf([
-  {
-    fields: ['motherId', 'mother'],
-    isRequired: false,
-  },
-  {
-    fields: ['fatherId', 'father'],
-    isRequired: false,
-  },
-])
-export class CreatePersonDto {
+export class FilterPersonDto {
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -37,21 +27,19 @@ export class CreatePersonDto {
   @Min(1)
   motherId?: number;
 
-  @IsString()
-  @Length(3, 100)
-  firstName: string;
-
-  @IsString()
-  @Length(3, 100)
-  lastName: string;
-
   @IsOptional()
-  @IsDateString()
-  birthDate?: string;
+  @IsString()
+  @Length(1, 100)
+  firstName?: string;
 
   @IsOptional()
   @IsString()
-  @Length(11, 11, { message: 'National ID must be exactly 11 characters long' })
+  @Length(1, 100)
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 11, { message: 'National ID must be exactly 11 characters long' })
   nationalId?: string;
 
   @IsOptional()
@@ -64,12 +52,12 @@ export class CreatePersonDto {
 
   @IsOptional()
   @IsString()
-  @Length(3, 100)
+  @Length(1, 100)
   nationality?: string;
 
   @IsOptional()
   @IsString()
-  @Length(3, 100)
+  @Length(1, 100)
   birthPlace?: string;
 
   @IsOptional()
@@ -78,13 +66,8 @@ export class CreatePersonDto {
 
   @IsOptional()
   @IsString()
-  @Length(3, 100)
+  @Length(1, 100)
   currentJob?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(1, 500)
-  jobDetails?: string;
 
   @IsOptional()
   @StrictBoolean()
@@ -117,23 +100,22 @@ export class CreatePersonDto {
 
   @IsOptional()
   @IsString()
-  @Length(3, 150)
+  @Length(1, 150)
   universityMajor?: string;
 
   @IsOptional()
-  @IsEmail()
-  @Length(3, 255)
+  @Length(1, 255)
   @Transform(({ value }) => value?.trim().toLowerCase())
   email?: string;
 
   @IsOptional()
   @IsString()
-  @Length(10)
+  @Length(1, 10)
   phone?: string;
 
   @IsOptional()
   @IsString()
-  @Length(3, 200)
+  @Length(1, 200)
   address?: string;
 
   @IsOptional()
@@ -147,17 +129,11 @@ export class CreatePersonDto {
   clothingSize?: ClothingSize;
 
   @IsOptional()
-  @IsString()
-  @Length(3, 200)
-  notes?: string;
+  @IsDateString()
+  birthDateFrom?: string;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => CreatePersonDto)
-  father?: CreatePersonDto;
-
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => CreatePersonDto)
-  mother?: CreatePersonDto;
+  @IsDateString()
+  @IsAfterDate('birthDateFrom')
+  birthDateTo?: string;
 }
